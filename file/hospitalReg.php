@@ -11,8 +11,9 @@ if(isset($_POST['hregister'])){
     $error= 'Email Already exists. Please try another Email.';
     header( "location:../register.php?error=".$error );
 }else{
+	$hashed_password = password_hash($hpassword, PASSWORD_BCRYPT);
 	$sql = "INSERT INTO hospitals (hname, hemail, hpassword, hphone, hcity)
-	VALUES ('$hname','$hemail', '$hpassword', '$hphone', '$hcity')";
+	VALUES ('$hname','$hemail', '$hashed_password', '$hphone', '$hcity')";
 	if ($conn->query($sql) === TRUE) {
 		$msg = 'You have successfully registered. Please, login to continue.';
 		header( "location:../login.php?msg=".$msg );

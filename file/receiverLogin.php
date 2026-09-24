@@ -4,7 +4,7 @@ session_start();
     if(isset($_POST['rlogin'])){
     $remail=$_POST['remail'];
     $rpassword=$_POST['rpassword'];
-    $sql="select * from receivers where remail='$remail' and rpassword='$rpassword'";
+    $sql="select * from receivers where remail='$remail'";
     $result=mysqli_query($conn,$sql) or die(mysqli_error($conn));
     $rows_fetched=mysqli_num_rows($result);
     if($rows_fetched==0){
@@ -12,11 +12,16 @@ session_start();
         header( "location:../login.php?error=".$error);
     }else{
         $row=mysqli_fetch_array($result);
-        $_SESSION['remail']=$row['remail'];
-        $_SESSION['rname']=$row['rname'];
-        $_SESSION['rid']=$row['id'];
-        $msg= $_SESSION['rname'].' have logged in.';
-        header( "location:../Userpage.html?msg=".$msg);
+        if(password_verify($rpassword, $row['rpassword'])){
+            $_SESSION['remail']=$row['remail'];
+            $_SESSION['rname']=$row['rname'];
+            $_SESSION['rid']=$row['id'];
+            $msg= $_SESSION['rname'].' have logged in.';
+            header( "location:../Userpage.html?msg=".$msg);
+        }else{
+            $error= "Wrong email or password. Please try again.";
+            header( "location:../login.php?error=".$error);
+        }
     } 
   }
 ?>

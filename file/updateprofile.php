@@ -10,12 +10,15 @@ if(isset($_POST['update'])){
     $bg = $_POST['bg'];
     $rcity = $_POST['rcity'];
     $rpassword = $_POST['rpassword'];
+    if (!empty($rpassword) && !password_get_info($rpassword)['algo']) {
+        $rpassword = password_hash($rpassword, PASSWORD_BCRYPT);
+    }
     $update = "UPDATE receivers SET rname='$rname', remail='$remail', rpassword='$rpassword', rphone='$rphone', rbg='$bg',rcity='$rcity' WHERE id='$id'";
     if ($conn->query($update) === TRUE) {
         $msg = "Your profile is updated successfully.";
         header( "location:../rprofile.php?msg=".$msg);
     } else {
-        $error = "Error: " . $sql . "<br>" . $conn->error;
+        $error = "Error: " . $conn->error;
         header( "location:../rprofile.php?error=".$error );
     }
     $conn->close();
@@ -30,12 +33,15 @@ if(isset($_POST['update'])){
     $hphone = $_POST['hphone'];
     $hcity = $_POST['hcity'];
     $hpassword = $_POST['hpassword'];
+    if (!empty($hpassword) && !password_get_info($hpassword)['algo']) {
+        $hpassword = password_hash($hpassword, PASSWORD_BCRYPT);
+    }
     $update = "UPDATE hospitals SET hname='$hname', hemail='$hemail', hpassword='$hpassword', hphone='$hphone', hcity='$hcity' WHERE id='$id'";
     if ($conn->query($update) === TRUE) {
         $msg= "Your profile is updated successfully.";
         header( "location:../hprofile.php?msg=".$msg);
     } else {
-        $error= "Error: " . $sql . "<br>" . $conn->error;
+        $error= "Error: " . $conn->error;
         header( "location:../hprofile.php?error=".$error);
     }
     $conn->close();

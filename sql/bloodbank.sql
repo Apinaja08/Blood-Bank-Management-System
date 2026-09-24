@@ -126,7 +126,7 @@ CREATE TABLE `hospitals` (
   `id` int(11) NOT NULL,
   `hname` varchar(100) NOT NULL,
   `hemail` varchar(100) NOT NULL,
-  `hpassword` varchar(100) NOT NULL,
+  `hpassword` varchar(255) NOT NULL,
   `hphone` varchar(100) NOT NULL,
   `hcity` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -152,7 +152,7 @@ CREATE TABLE `receivers` (
   `id` int(11) NOT NULL,
   `rname` varchar(100) NOT NULL,
   `remail` varchar(100) NOT NULL,
-  `rpassword` varchar(100) NOT NULL,
+  `rpassword` varchar(255) NOT NULL,
   `rphone` varchar(100) NOT NULL,
   `rbg` varchar(10) NOT NULL,
   `rcity` varchar(100) NOT NULL
