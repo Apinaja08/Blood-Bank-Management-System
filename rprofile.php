@@ -4,14 +4,15 @@ session_start();
 if(!isset($_SESSION['rid']))
 {
   header('location:login.php');
+  exit();
 }
 else {
-	if(isset($_SESSION['rid'])){
-		$id=$_SESSION['rid'];
-		$sql = "SELECT * FROM receivers WHERE id='$id'";
-		$result = mysqli_query($conn, $sql);
-		$row = mysqli_fetch_array($result);
-	}
+    $id = (int)$_SESSION['rid'];
+    $stmt = $conn->prepare("SELECT * FROM receivers WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
 }
 ?>
 

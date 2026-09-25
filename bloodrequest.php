@@ -3,12 +3,15 @@ require 'file/connection.php';
 session_start();
   if(!isset($_SESSION['hid']))
   {
-  header('location:login.php');
+    header('location:login.php');
+    exit();
   }
   else {
-    $hid = $_SESSION['hid'];
-    $sql = "select bloodrequest.*, receivers.* from bloodrequest, receivers where hid='$hid' && bloodrequest.rid=receivers.id";
-    $result = mysqli_query($conn, $sql);
+    $hid = (int)$_SESSION['hid'];
+    $stmt = $conn->prepare("SELECT bloodrequest.*, receivers.* FROM bloodrequest JOIN receivers ON bloodrequest.rid = receivers.id WHERE bloodrequest.hid = ?");
+    $stmt->bind_param("i", $hid);
+    $stmt->execute();
+    $result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>

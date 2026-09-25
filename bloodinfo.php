@@ -63,9 +63,11 @@
      </div>
 
 <?php   if(isset($_SESSION['hid'])){
-    $hid=$_SESSION['hid'];
-    $sql = "select * from bloodinfo where hid='$hid'";
-    $result = mysqli_query($conn, $sql);
+    $hid = (int)$_SESSION['hid'];
+    $stmt = $conn->prepare("SELECT * FROM bloodinfo WHERE hid = ?");
+    $stmt->bind_param("i", $hid);
+    $stmt->execute();
+    $result = $stmt->get_result();
   }
   ?>
     <div class="col-lg-4 col-md-5 col-sm-6 col-xs-7 mb-5">

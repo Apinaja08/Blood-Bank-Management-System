@@ -1,13 +1,17 @@
 <?php 
 session_start();
 require 'file/connection.php';
-if(isset($_GET['search'])){
-    $searchKey = $_GET['search'];
-    $sql = "select bloodinfo.*, hospitals.* from bloodinfo, hospitals where bloodinfo.hid=hospitals.id && bg='$searchKey'";
-}else{
-    $sql = "select bloodinfo.*, hospitals.* from bloodinfo, hospitals where bloodinfo.hid=hospitals.id";
+$searchKey = trim($_GET['search'] ?? '');
+$allowed_bg = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
+if (!empty($searchKey) && in_array($searchKey, $allowed_bg, true)) {
+    $stmt = $conn->prepare("SELECT bloodinfo.*, hospitals.* FROM bloodinfo JOIN hospitals ON bloodinfo.hid = hospitals.id WHERE bloodinfo.bg = ?");
+    $stmt->bind_param("s", $searchKey);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query("SELECT bloodinfo.*, hospitals.* FROM bloodinfo JOIN hospitals ON bloodinfo.hid = hospitals.id");
 }
-$result = mysqli_query ($conn, $sql);
 ?>
 
 <!DOCTYPE html>

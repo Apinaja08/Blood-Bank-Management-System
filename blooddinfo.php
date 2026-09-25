@@ -63,9 +63,11 @@
      </div>
 
 <?php   if(isset($_SESSION['rid'])){
-    $rid=$_SESSION['rid'];
-    $sql = "SELECT * from blooddinfo where rid='$rid'";
-    $result = mysqli_query($conn, $sql);
+    $rid = (int)$_SESSION['rid'];
+    $stmt = $conn->prepare("SELECT * FROM blooddinfo WHERE rid = ?");
+    $stmt->bind_param("i", $rid);
+    $stmt->execute();
+    $result = $stmt->get_result();
   }
   ?>
     <div class="col-lg-4 col-md-5 col-sm-6 col-xs-7 mb-5">

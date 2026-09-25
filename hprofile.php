@@ -4,14 +4,15 @@ session_start();
 if(!isset($_SESSION['hid']))
 {
   header('location:login.php');
+  exit();
 }
 else {
-	if(isset($_SESSION['hid'])){
-		$id=$_SESSION['hid'];
-		$sql = "SELECT * FROM hospitals WHERE id='$id'";
-		$result = mysqli_query($conn, $sql);
-		$row = mysqli_fetch_array($result);
-	}
+    $id = (int)$_SESSION['hid'];
+    $stmt = $conn->prepare("SELECT * FROM hospitals WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
 }
 ?>
 
