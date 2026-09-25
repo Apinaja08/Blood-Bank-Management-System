@@ -1,13 +1,31 @@
 <?php
+session_start();
 include "connection.php";
-    $reqid=$_GET['reqid'];
-	$sql = "delete from bloodrequest where reqid='$reqid'";
-	if (mysqli_query($conn, $sql)) {
-	$msg="You have cancelled request for the blood.";
-	header("location:../sentrequest.php?msg=".$msg );
+
+if (!isset($_SESSION['rid'])) {
+    header("location:../login.php");
+    exit();
+}
+
+$reqid = filter_var($_GET['reqid'] ?? null, FILTER_VALIDATE_INT);
+$rid   = (int)$_SESSION['rid'];
+
+if ($reqid) {
+    $stmt = $conn->prepare("DELETE FROM bloodrequest WHERE reqid = ? AND rid = ?");
+    $stmt->bind_param("ii", $reqid, $rid);
+
+    if ($stmt->execute()) {
+        $msg = "You have cancelled request for the blood.";
+        header("location:../sentrequest.php?msg=" . urlencode($msg));
     } else {
-    $error="Error deleting record: " . mysqli_error($conn);
-    header("location:../sentrequest.php?error=".$error );
+        $error = "Error cancelling request: Failed to execute deletion.";
+        header("location:../sentrequest.php?error=" . urlencode($error));
     }
-    mysqli_close($conn);
+    $stmt->close();
+} else {
+    header("location:../sentrequest.php?error=" . urlencode("Invalid request ID."));
+}
+
+mysqli_close($conn);
+exit();
 ?>

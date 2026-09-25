@@ -1,36 +1,43 @@
 <?php
 session_start(); 
 require 'connection.php';
-if(!isset($_SESSION['hid']))
-{
-	header('location:../login.php');
-}
-else {
-	if(isset($_POST['request'])){
-		$rid = $_POST['rid'];
-		$hid = $_SESSION['hid'];
-		$bg = $_POST['bg'];
-		$check_data = mysqli_query($conn, "SELECT donoid FROM blooddonate where rid='$rid' and hid='$hid'");
-		if(mysqli_num_rows($check_data) > 0){
-		$sql="INSERT INTO blooddonate (bg, rid, hid) VALUES ('$bg', '$rid', '$hid')";
-		if ($conn->query($sql) === TRUE) {
-			$msg = 'You have requested for blood group '.$bg.'.For the updation of your request you can check your Status now.';
-			header( "location:../deleteit.php?msg=".$msg);
-		} else {
-			$error = "Error: " . $sql . "<br>" . $conn->error;
-            header( "location:../deleteit.php?error=".$error );
-		}
-}else{
-		$sql="INSERT INTO blooddonate (bg, rid, hid) VALUES ('$bg', '$rid', '$hid')";
-		if ($conn->query($sql) === TRUE) {
-			$msg = 'You have requested for blood group '.$bg.'.For the updation of your request you can check your Status now.';
-			header( "location:../deleteit.php?msg=".$msg);
-		} else {
-			$error = "Error: " . $sql . "<br>" . $conn->error;
-            header( "location:../deleteit.php?error=".$error );
-		}
-		$conn->close();
-	}
-}
+
+if (!isset($_SESSION['hid'])) {
+    header('location:../login.php');
+    exit();
+} else {
+    if (isset($_POST['request'])) {
+        $rid = filter_var($_POST['rid'] ?? null, FILTER_VALIDATE_INT);
+        $hid = (int)$_SESSION['hid'];
+        $bg  = trim($_POST['bg'] ?? '');
+
+        $allowed_bg = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+        if (!$rid || !in_array($bg, $allowed_bg, true)) {
+            $error = "Invalid donor ID or blood group selected.";
+            header("location:../deleteit.php?error=" . urlencode($error));
+            exit();
+        }
+
+        $stmt_check = $conn->prepare("SELECT donoid FROM blooddonate WHERE rid = ? AND hid = ?");
+        $stmt_check->bind_param("ii", $rid, $hid);
+        $stmt_check->execute();
+        $check_data = $stmt_check->get_result();
+
+        $stmt_insert = $conn->prepare("INSERT INTO blooddonate (bg, rid, hid) VALUES (?, ?, ?)");
+        $stmt_insert->bind_param("sii", $bg, $rid, $hid);
+
+        if ($stmt_insert->execute()) {
+            $msg = 'You have requested for blood group ' . htmlspecialchars($bg) . '. For the updation of your request you can check your Status now.';
+            header("location:../deleteit.php?msg=" . urlencode($msg));
+        } else {
+            $error = "Error: Failed to submit donation request.";
+            header("location:../deleteit.php?error=" . urlencode($error));
+        }
+
+        $stmt_check->close();
+        $stmt_insert->close();
+        $conn->close();
+        exit();
+    }
 }
 ?>

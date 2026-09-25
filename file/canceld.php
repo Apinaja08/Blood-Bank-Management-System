@@ -1,13 +1,31 @@
 <?php
+session_start();
 include "connection.php";
-    $donoid=$_GET['donoid'];
-	$sql = "DELETE from blooddonate where donoid='$donoid'";
-	if (mysqli_query($conn, $sql)) {
-	$msg="You have cancelled request for the blood.";
-	header("location:../sentrequestd.php?msg=".$msg );
+
+if (!isset($_SESSION['hid'])) {
+    header("location:../login.php");
+    exit();
+}
+
+$donoid = filter_var($_GET['donoid'] ?? null, FILTER_VALIDATE_INT);
+$hid    = (int)$_SESSION['hid'];
+
+if ($donoid) {
+    $stmt = $conn->prepare("DELETE FROM blooddonate WHERE donoid = ? AND hid = ?");
+    $stmt->bind_param("ii", $donoid, $hid);
+
+    if ($stmt->execute()) {
+        $msg = "You have cancelled request for the blood.";
+        header("location:../sentrequestd.php?msg=" . urlencode($msg));
     } else {
-    $error="Error deleting record: " . mysqli_error($conn);
-    header("location:../sentrequestd.php?error=".$error );
+        $error = "Error cancelling record: Failed to execute deletion.";
+        header("location:../sentrequestd.php?error=" . urlencode($error));
     }
-    mysqli_close($conn);
+    $stmt->close();
+} else {
+    header("location:../sentrequestd.php?error=" . urlencode("Invalid donation request ID."));
+}
+
+mysqli_close($conn);
+exit();
 ?>
