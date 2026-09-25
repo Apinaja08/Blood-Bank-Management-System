@@ -1,6 +1,7 @@
 <?php 
-require 'file/connection.php'; 
+require 'file/connection.php';
 session_start();
+require 'file/csrf.php';
   if(!isset($_SESSION['rid']))
   {
   header('location:login.php');
@@ -71,7 +72,11 @@ session_start();
 			<td><?php if($row['status'] == 'Accepted'){ ?>
 			<?php }
 			else{ ?>
-				<a href="file/cancel.php?reqid=<?php echo $row['reqid'];?>" class="btn btn-danger">Cancel</a>
+				<form action="file/cancel.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="reqid" value="<?php echo $row['reqid'];?>">
+					<button type="submit" class="btn btn-danger">Cancel</button>
+				</form>
 			<?php } ?>
 			</td>
 		</tr>

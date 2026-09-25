@@ -1,6 +1,7 @@
 <?php 
   require 'file/connection.php';
   session_start();
+  require 'file/csrf.php';
   if(!isset($_SESSION['hid']))
   {
   header('location:login.php');
@@ -39,6 +40,7 @@
             <div class="card-header title">Add blood group available in your hospital</div>
         <div class="card-body">
         <form action="file/infoAdd.php" method="post">
+          <?php echo csrf_field(); ?>
           <a data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" title="click to see">Term & conditions. </a><br>
           <div class="collapse" id="collapseExample">
           If you have a blood sample tested by  your doctor’s, nurse, or trained phlebotomist , at a pathology collection centre, clinic or hospital. Blood samples are most commonly taken from the inside of the elbow where the veins are usually closer to the surface. If before the needle is inserted, the area had been cleaned with an antiseptic cloth and blood sample is transferred into tubes containing the correct preservatives then add your blood group available in your hospital to your blood bank.<br><br>
@@ -91,7 +93,13 @@
               <td><?php echo ++$counter; ?></td>
 
               <td><?php echo $row['bg'];?></td>
-              <td><a href="file/delete.php?bid=<?php echo $row['bid'];?>" class="btn btn-danger">Delete</a></td>
+              <td>
+                <form action="file/delete.php" method="post" style="display:inline">
+                  <?php echo csrf_field(); ?>
+                  <input type="hidden" name="bid" value="<?php echo $row['bid'];?>">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </td>
             </tr>
             <?php } ?>
           </table>

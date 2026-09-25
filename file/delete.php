@@ -1,6 +1,8 @@
 <?php
+require "csrf.php";
 include "connection.php";
-    $bid=$_GET['bid'];
+    csrf_verify('bloodinfo.php');
+    $bid=$_POST['bid'];
 	$sql = "delete from bloodinfo where bid='$bid'";
 	if (mysqli_query($conn, $sql)) {
 	$msg="You have deleted one blood sample.";

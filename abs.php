@@ -1,6 +1,7 @@
 <?php 
 session_start();
 require 'file/connection.php';
+require 'file/csrf.php';
 if(isset($_GET['search'])){
     $searchKey = $_GET['search'];
     $sql = "select bloodinfo.*, hospitals.* from bloodinfo, hospitals where bloodinfo.hid=hospitals.id && bg='$searchKey'";
@@ -89,6 +90,7 @@ $result = mysqli_query ($conn, $sql);
                 <?php $hid= $row['hid'];?>
                 <?php $bg= $row['bg'];?>
                 <form action="file/request.php" method="post">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="bid" value="<?php echo $bid; ?>">
                     <input type="hidden" name="hid" value="<?php echo $hid; ?>">
                     <input type="hidden" name="bg" value="<?php echo $bg; ?>">

@@ -1,6 +1,8 @@
 <?php
+require "csrf.php";
 include "connection.php";
-    $reqid=$_GET['reqid'];
+    csrf_verify('bloodrequest.php');
+    $reqid=$_POST['reqid'];
 	$status = "Accepted";
 	$sql = "update bloodrequest SET status = '$status' WHERE reqid = '$reqid'";
     if (mysqli_query($conn, $sql)) {

@@ -1,5 +1,5 @@
 <?php
-session_start(); 
+require 'csrf.php';
 require 'connection.php';
 if(!isset($_SESSION['hid']))
 {
@@ -7,6 +7,7 @@ if(!isset($_SESSION['hid']))
 }
 else {
 	if(isset($_POST['request'])){
+		csrf_verify('deleteit.php');
 		$rid = $_POST['rid'];
 		$hid = $_SESSION['hid'];
 		$bg = $_POST['bg'];

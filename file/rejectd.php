@@ -1,6 +1,8 @@
 <?php
+require "csrf.php";
 include "connection.php";
-    $donoid=$_GET['donoid'];
+    csrf_verify('blooddonate.php');
+    $donoid=$_POST['donoid'];
 	$status = "Rejected";
 	$sql = "UPDATE blooddonate SET status = '$status' WHERE donoid = '$donoid'";
     if (mysqli_query($conn, $sql)) {

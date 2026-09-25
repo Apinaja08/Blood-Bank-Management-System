@@ -1,8 +1,9 @@
 <?php 
-session_start();
+require 'csrf.php';
 require 'connection.php';
 if (isset($_SESSION['rid'])) {
 if(isset($_POST['update'])){
+    csrf_verify('rprofile.php');
     $id=$_SESSION['rid'];
     $rname = $_POST['rname'];
     $remail = $_POST['remail'];
@@ -24,6 +25,7 @@ if(isset($_POST['update'])){
 
 }elseif (isset($_SESSION['hid'])) {
     if(isset($_POST['update'])){
+        csrf_verify('hprofile.php');
         $id=$_SESSION['hid'];
     $hname = $_POST['hname'];
     $hemail = $_POST['hemail'];

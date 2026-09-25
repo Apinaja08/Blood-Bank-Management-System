@@ -1,6 +1,8 @@
 <?php
+require "csrf.php";
 include "connection.php";
-    $donoid=$_GET['donoid'];
+    csrf_verify('sentrequestd.php');
+    $donoid=$_POST['donoid'];
 	$sql = "DELETE from blooddonate where donoid='$donoid'";
 	if (mysqli_query($conn, $sql)) {
 	$msg="You have cancelled request for the blood.";

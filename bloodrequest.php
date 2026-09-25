@@ -1,6 +1,7 @@
 <?php 
-require 'file/connection.php'; 
+require 'file/connection.php';
 session_start();
+require 'file/csrf.php';
   if(!isset($_SESSION['hid']))
   {
   header('location:login.php');
@@ -70,12 +71,20 @@ session_start();
 			<td><?php echo 'You have '.$row['status'];?></td>
 			<td><?php if($row['status'] == 'Accepted'){ ?> <a href="" class="btn btn-success disabled">Accepted</a> <?php }
 			else{ ?>
-				<a href="file/accept.php?reqid=<?php echo $row['reqid'];?>" class="btn btn-success">Accept</a>
+				<form action="file/accept.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="reqid" value="<?php echo $row['reqid'];?>">
+					<button type="submit" class="btn btn-success">Accept</button>
+				</form>
 			<?php } ?>
 			</td>
 			<td><?php if($row['status'] == 'Rejected'){ ?> <a href="" class="btn btn-danger disabled">Rejected</a> <?php }
 			else{ ?>
-				<a href="file/reject.php?reqid=<?php echo $row['reqid'];?>" class="btn btn-danger">Reject</a>
+				<form action="file/reject.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="reqid" value="<?php echo $row['reqid'];?>">
+					<button type="submit" class="btn btn-danger">Reject</button>
+				</form>
 			<?php } ?>
 			</td>
 			

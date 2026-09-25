@@ -1,6 +1,7 @@
 <?php
 require 'file/connection.php';
 session_start();
+require 'file/csrf.php';
 if(!isset($_SESSION['hid']))
 {
   header('location:login.php');
@@ -48,6 +49,7 @@ else {
 					</div>
 					<div class="card-body">
 					   <form action="file/updateprofile.php" method="post">
+					   	<?php echo csrf_field(); ?>
 					   	<label class="text-muted font-weight-bold" class="text-muted font-weight-bold">Hospital Name</label>
 						<input type="text" name="hname" value="<?php echo $row['hname']; ?>" class="form-control mb-3">
 						<label class="text-muted font-weight-bold">Hospital Email</label>

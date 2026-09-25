@@ -1,12 +1,13 @@
 <?php
 require 'connection.php';
-session_start();
+require 'csrf.php';
 if(!isset($_SESSION['rid']))
 {
 	header('location:login.php');
 }
 else {
 	if(isset($_POST['add'])){
+		csrf_verify('blooddinfo.php');
 		$rid=$_SESSION['rid'];
 		$bg=$_POST['bg'];
 		$check_data = mysqli_query($conn, "SELECT rid FROM blooddinfo where rid='$rid' && bg='$bg'");
