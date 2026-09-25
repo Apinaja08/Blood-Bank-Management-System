@@ -1,13 +1,17 @@
 <?php
+require "auth.php";
 include "connection.php";
-    $reqid=$_GET['reqid'];
+    $hid = require_role('hid');
+    $reqid = require_id('reqid', 'bloodrequest.php');
 	$status = "Rejected";
-	$sql = "update bloodrequest SET status = '$status' WHERE reqid = '$reqid'";
-    if (mysqli_query($conn, $sql)) {
+	// Only the hospital the request was sent to may change its status.
+	$stmt = $conn->prepare("UPDATE bloodrequest SET status = ? WHERE reqid = ? AND hid = ?");
+	$stmt->bind_param("sii", $status, $reqid, $hid);
+    if ($stmt->execute() && $stmt->affected_rows > 0) {
 	$msg="You have Rejected the request.";
 	header("location:../bloodrequest.php?msg=".$msg );
     } else {
-    $error= "Error changing status: " . mysqli_error($conn);
+    $error= "Request not found or you are not allowed to change it.";
     header("location:../bloodrequest.php?error=".$error );
     }
     mysqli_close($conn);

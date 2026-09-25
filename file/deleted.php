@@ -1,12 +1,16 @@
 <?php
+require "auth.php";
 include "connection.php";
-    $bdid=$_GET['bdid'];
-	$sql = "delete from blooddinfo where bdid='$bdid'";
-	if (mysqli_query($conn, $sql)) {
+    $rid = require_role('rid');
+    $bdid = require_id('bdid', 'blooddinfo.php');
+	// A receiver may only delete their own donor blood samples.
+	$stmt = $conn->prepare("DELETE FROM blooddinfo WHERE bdid = ? AND rid = ?");
+	$stmt->bind_param("ii", $bdid, $rid);
+	if ($stmt->execute() && $stmt->affected_rows > 0) {
 	$msg="You have deleted one blood sample.";
 	header("location:../blooddinfo.php?msg=".$msg );
     } else {
-    $error="Error deleting record: " . mysqli_error($conn);
+    $error="Sample not found or you are not allowed to delete it.";
     header("location:../blooddinfo.php?error=".$error );
     }
     mysqli_close($conn);
