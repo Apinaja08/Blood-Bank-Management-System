@@ -1,7 +1,9 @@
 <?php
 require 'connection.php';
+require 'csrf.php';
 
 if (isset($_POST['hregister'])) {
+    csrf_verify('register.php');
     $hname     = trim($_POST['hname'] ?? '');
     $hemail    = trim($_POST['hemail'] ?? '');
     $hpassword = $_POST['hpassword'] ?? '';

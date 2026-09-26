@@ -167,6 +167,8 @@ function csrf_verify($redirect) {     // constant-time comparison
 | `abs.php` | `request.php` | ✅ |
 | `deleteit.php` | `requestd.php` | ✅ |
 | `rprofile.php`, `hprofile.php` | `updateprofile.php` | ✅ |
+| `login.php` (hospital & user) | `hospitalLogin.php`, `receiverLogin.php` | ✅ |
+| `register.php` (hospital & user) | `hospitalReg.php`, `receiverReg.php` | ✅ |
 
 ---
 
@@ -199,6 +201,5 @@ so the merges produced conflicts in the same files. They were resolved by **keep
 
 ## 6. Remaining Items (Out of My Scope)
 
-- `login.php` and `register.php` forms do not yet carry CSRF tokens.
 - `file/oauth_config.php` contains a hard-coded Google client secret, which should be moved to an environment variable and rotated.
 - Password hashing is handled in the `Sarumathy` branch, which is not yet merged into `Member/Apinaja`.

@@ -1,7 +1,9 @@
 <?php
 session_start();
     require 'connection.php';
+    require 'csrf.php';
     if(isset($_POST['rlogin'])){
+        csrf_verify('login.php');
     $remail=$_POST['remail'];
     $rpassword=$_POST['rpassword'];
     $sql="select * from receivers where remail='$remail' and rpassword='$rpassword'";

@@ -1,5 +1,6 @@
 <?php 
 session_start();
+require_once 'file/csrf.php';
 if (isset($_SESSION['hid'])) {
   header("location:bloodrequest.php");
 }elseif (isset($_SESSION['rid'])) {
@@ -49,6 +50,7 @@ if (isset($_SESSION['hid'])) {
     <div class="tab-content">
        <div class="tab-pane container active" id="hospitals">
         <form action="file/hospitalLogin.php" class="login-form" method="post">
+          <?php echo csrf_field(); ?>
           <label class="text-muted font-weight-bold" class="text-muted font-weight-bold">Hospital Email</label>
           <input type="email" name="hemail" placeholder="Hospital Email" class="form-control mb-4">
           <label class="text-muted font-weight-bold" class="text-muted font-weight-bold">Hospital Password</label>
@@ -60,6 +62,7 @@ if (isset($_SESSION['hid'])) {
 
       <div class="tab-pane container fade" id="receivers">
          <form action="file/receiverLogin.php" class="login-form" method="post">
+           <?php echo csrf_field(); ?>
           <label class="text-muted font-weight-bold">User Email</label>
           <input type="email" name="remail" placeholder="User Email" class="form-control mb-3" required>
           <label class="text-muted font-weight-bold">User Password</label>

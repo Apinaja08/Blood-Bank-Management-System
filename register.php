@@ -1,5 +1,6 @@
 <?php 
 session_start();
+require_once 'file/csrf.php';
 if (isset($_SESSION['hid'])) {
   header("location:bloodrequest.php");
 }elseif (isset($_SESSION['rid'])) {
@@ -50,6 +51,7 @@ body{
        <div class="tab-pane container active" id="hospitals">
 
         <form action="file/hospitalReg.php" method="post" enctype="multipart/form-data">
+          <?php echo csrf_field(); ?>
           <input type="text" name="hname" placeholder="Hospital Name" class="form-control mb-3" required>
           <input type="text" name="hcity" placeholder="Hospital City" class="form-control mb-3" required>
           <input type="tel" name="hphone" placeholder="Hospital Phone Number" class="form-control mb-3" required pattern="[0,6-9]{1}[0-9]{9,11}" title="Password must have start from 0,6,7,8 or 9 and must have 10 to 12 digit">
@@ -64,6 +66,7 @@ body{
        <div class="tab-pane container fade" id="receivers">
 
          <form action="file/receiverReg.php" method="post" enctype="multipart/form-data">
+           <?php echo csrf_field(); ?>
           <input type="text" name="rname" placeholder="User Name" class="form-control mb-3" required>
           <select name="rbg" class="form-control mb-3" required>
                 <option disabled="" selected="">Blood Group</option>

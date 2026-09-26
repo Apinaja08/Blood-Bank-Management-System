@@ -1,8 +1,10 @@
 <?php
 session_start();
 require 'connection.php';
+require 'csrf.php';
 
 if (isset($_POST['hlogin'])) {
+    csrf_verify('login.php');
     $hemail = trim($_POST['hemail'] ?? '');
     $hpassword = $_POST['hpassword'] ?? '';
 
