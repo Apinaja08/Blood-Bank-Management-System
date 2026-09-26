@@ -1,31 +1,17 @@
 <?php
-session_start();
+require "auth.php";
 include "connection.php";
-
-if (!isset($_SESSION['rid'])) {
-    header("location:../login.php");
-    exit();
-}
-
-$bdid = filter_var($_GET['bdid'] ?? null, FILTER_VALIDATE_INT);
-$rid  = (int)$_SESSION['rid'];
-
-if ($bdid) {
-    $stmt = $conn->prepare("DELETE FROM blooddinfo WHERE bdid = ? AND rid = ?");
-    $stmt->bind_param("ii", $bdid, $rid);
-
-    if ($stmt->execute()) {
-        $msg = "You have deleted one blood sample.";
-        header("location:../blooddinfo.php?msg=" . urlencode($msg));
+    $rid = require_role('rid');
+    $bdid = require_id('bdid', 'blooddinfo.php');
+	// A receiver may only delete their own donor blood samples.
+	$stmt = $conn->prepare("DELETE FROM blooddinfo WHERE bdid = ? AND rid = ?");
+	$stmt->bind_param("ii", $bdid, $rid);
+	if ($stmt->execute() && $stmt->affected_rows > 0) {
+	$msg="You have deleted one blood sample.";
+	header("location:../blooddinfo.php?msg=".urlencode($msg));
     } else {
-        $error = "Error deleting record: Failed to execute deletion.";
-        header("location:../blooddinfo.php?error=" . urlencode($error));
+    $error="Sample not found or you are not allowed to delete it.";
+    header("location:../blooddinfo.php?error=".urlencode($error));
     }
-    $stmt->close();
-} else {
-    header("location:../blooddinfo.php?error=" . urlencode("Invalid blood sample ID."));
-}
-
-mysqli_close($conn);
-exit();
+    mysqli_close($conn);
 ?>

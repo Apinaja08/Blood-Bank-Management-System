@@ -1,26 +1,18 @@
 <?php
-session_start();
+require "auth.php";
 include "connection.php";
-
-$reqid = filter_var($_GET['reqid'] ?? null, FILTER_VALIDATE_INT);
-$status = "Accepted";
-
-if ($reqid) {
-    $stmt = $conn->prepare("UPDATE bloodrequest SET status = ? WHERE reqid = ?");
-    $stmt->bind_param("si", $status, $reqid);
-
-    if ($stmt->execute()) {
-        $msg = "You have accepted the request.";
-        header("Location: ../bloodrequest.php?msg=" . urlencode($msg));
+    $hid = require_role('hid');
+    $reqid = require_id('reqid', 'bloodrequest.php');
+	$status = "Accepted";
+	// Only the hospital the request was sent to may change its status.
+	$stmt = $conn->prepare("UPDATE bloodrequest SET status = ? WHERE reqid = ? AND hid = ?");
+	$stmt->bind_param("sii", $status, $reqid, $hid);
+    if ($stmt->execute() && $stmt->affected_rows > 0) {
+	$msg="You have accepted the request.";
+	header("location:../bloodrequest.php?msg=".urlencode($msg));
     } else {
-        $error = "Error updating request status.";
-        header("Location: ../bloodrequest.php?error=" . urlencode($error));
+    $error= "Request not found or you are not allowed to change it.";
+    header("location:../bloodrequest.php?error=".urlencode($error));
     }
-    $stmt->close();
-} else {
-    header("Location: ../bloodrequest.php?error=" . urlencode("Invalid request ID."));
-}
-
-$conn->close();
-exit();
+    mysqli_close($conn);
 ?>

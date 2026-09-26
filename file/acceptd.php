@@ -1,31 +1,18 @@
 <?php
-session_start();
+require "auth.php";
 include "connection.php";
-
-if (!isset($_SESSION['rid']) && !isset($_SESSION['hid'])) {
-    header("location:../login.php");
-    exit();
-}
-
-$donoid = filter_var($_GET['donoid'] ?? null, FILTER_VALIDATE_INT);
-$status = 'Accepted';
-
-if ($donoid) {
-    $stmt = $conn->prepare("UPDATE blooddonate SET status = ? WHERE donoid = ?");
-    $stmt->bind_param("si", $status, $donoid);
-
-    if ($stmt->execute()) {
-        $msg = "You have accepted the request.";
-        header("location:../blooddonate.php?msg=" . urlencode($msg));
+    $rid = require_role('rid');
+    $donoid = require_id('donoid', 'blooddonate.php');
+	$status = 'Accepted';
+	// Only the receiver the donation request was sent to may change its status.
+	$stmt = $conn->prepare("UPDATE blooddonate SET status = ? WHERE donoid = ? AND rid = ?");
+	$stmt->bind_param("sii", $status, $donoid, $rid);
+    if ($stmt->execute() && $stmt->affected_rows > 0) {
+	$msg="You have accepted the request.";
+	header("location:../blooddonate.php?msg=".urlencode($msg));
     } else {
-        $error = "Error changing status: Failed to execute query.";
-        header("location:../blooddonate.php?error=" . urlencode($error));
+    $error= "Request not found or you are not allowed to change it.";
+    header("location:../blooddonate.php?error=".urlencode($error));
     }
-    $stmt->close();
-} else {
-    header("location:../blooddonate.php?error=" . urlencode("Invalid donation request ID."));
-}
-
-mysqli_close($conn);
-exit();
+    mysqli_close($conn);
 ?>
