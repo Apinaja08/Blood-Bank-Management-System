@@ -6,7 +6,7 @@ include "connection.php";
 	$msg="You have deleted one blood sample.";
 	header("location:../bloodinfo.php?msg=".$msg );
     } else {
-    $error="Error deleting record: " . mysqli_error($conn);
+    $error="Error deleting record: ";
     header("location:../bloodinfo.php?error=".$error );
     }
     mysqli_close($conn);

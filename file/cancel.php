@@ -6,7 +6,7 @@ include "connection.php";
 	$msg="You have cancelled request for the blood.";
 	header("location:../sentrequest.php?msg=".$msg );
     } else {
-    $error="Error deleting record: " . mysqli_error($conn);
+    $error="Error deleting record: ";
     header("location:../sentrequest.php?error=".$error );
     }
     mysqli_close($conn);

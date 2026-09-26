@@ -7,7 +7,7 @@ include "connection.php";
 	$msg="You have accepted the request.";
 	header("location:../blooddonate.php?msg=".$msg );
     } else {
-    $error= "Error changing status: " . mysqli_error($conn);
+    $error= "Error changing status: ";
     header("location:../blooddonate.php?error=".$error );
     }
     mysqli_close($conn);
