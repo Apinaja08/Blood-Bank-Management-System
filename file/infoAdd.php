@@ -1,5 +1,6 @@
 <?php
 session_start();
+require 'csrf.php';
 require 'connection.php';
 
 if (!isset($_SESSION['hid'])) {
@@ -8,6 +9,7 @@ if (!isset($_SESSION['hid'])) {
 }
 
 if (isset($_POST['add'])) {
+    csrf_verify('bloodinfo.php');
     $hid = (int)$_SESSION['hid'];
     $bg  = trim($_POST['bg'] ?? '');
 

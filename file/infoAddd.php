@@ -1,12 +1,14 @@
 <?php
 require 'connection.php';
 session_start();
+require 'csrf.php';
 
 if (!isset($_SESSION['rid'])) {
     header('location:../login.php');
     exit();
 } else {
     if (isset($_POST['add'])) {
+        csrf_verify('blooddinfo.php');
         $rid = (int)$_SESSION['rid'];
         $bg  = trim($_POST['bg'] ?? '');
 

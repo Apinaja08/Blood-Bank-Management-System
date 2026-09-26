@@ -1,7 +1,9 @@
 <?php
 require "auth.php";
+require "csrf.php";
 include "connection.php";
     $rid = require_role('rid');
+    csrf_verify('blooddinfo.php');
     $bdid = require_id('bdid', 'blooddinfo.php');
 	// A receiver may only delete their own donor blood samples.
 	$stmt = $conn->prepare("DELETE FROM blooddinfo WHERE bdid = ? AND rid = ?");

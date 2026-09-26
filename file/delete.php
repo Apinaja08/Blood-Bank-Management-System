@@ -1,7 +1,9 @@
 <?php
 require "auth.php";
+require "csrf.php";
 include "connection.php";
     $hid = require_role('hid');
+    csrf_verify('bloodinfo.php');
     $bid = require_id('bid', 'bloodinfo.php');
 	// A hospital may only delete its own blood samples.
 	$stmt = $conn->prepare("DELETE FROM bloodinfo WHERE bid = ? AND hid = ?");

@@ -1,7 +1,9 @@
 <?php
 require "auth.php";
+require "csrf.php";
 include "connection.php";
     $rid = require_role('rid');
+    csrf_verify('sentrequest.php');
     $reqid = require_id('reqid', 'sentrequest.php');
 	// A receiver may only cancel requests they sent themselves.
 	$stmt = $conn->prepare("DELETE FROM bloodrequest WHERE reqid = ? AND rid = ?");

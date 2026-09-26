@@ -1,8 +1,10 @@
 <?php
 require 'auth.php';
+require 'csrf.php';
 require 'connection.php';
 $rid = require_role('rid');
 if(isset($_POST['request'])){
+	csrf_verify('abs.php');
 	$bid = filter_input(INPUT_POST, 'bid', FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
 	// Take the hospital and blood group from the stored sample, not from the form.
 	$stmt = $conn->prepare("SELECT hid, bg FROM bloodinfo WHERE bid = ?");

@@ -1,7 +1,9 @@
 <?php
 require "auth.php";
+require "csrf.php";
 include "connection.php";
     $rid = require_role('rid');
+    csrf_verify('blooddonate.php');
     $donoid = require_id('donoid', 'blooddonate.php');
 	$status = "Rejected";
 	// Only the receiver the donation request was sent to may change its status.

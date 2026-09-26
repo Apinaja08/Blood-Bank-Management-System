@@ -1,6 +1,7 @@
 <?php 
 session_start();
 require 'file/connection.php';
+require 'file/csrf.php';
 $searchKey = trim($_GET['search'] ?? '');
 $allowed_bg = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -93,6 +94,7 @@ if (!empty($searchKey) && in_array($searchKey, $allowed_bg, true)) {
                 <?php $hid= $row['hid'];?>
                 <?php $bg= $row['bg'];?>
                 <form action="file/request.php" method="post">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="bid" value="<?php echo $bid; ?>">
                     <input type="hidden" name="hid" value="<?php echo $hid; ?>">
                     <input type="hidden" name="bg" value="<?php echo $bg; ?>">

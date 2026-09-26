@@ -1,8 +1,10 @@
 <?php
 require 'auth.php';
+require 'csrf.php';
 require 'connection.php';
 $hid = require_role('hid');
 if(isset($_POST['request'])){
+	csrf_verify('deleteit.php');
 	$bdid = filter_input(INPUT_POST, 'bdid', FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
 	// Take the donor and blood group from the stored sample, not from the form.
 	$stmt = $conn->prepare("SELECT rid, bg FROM blooddinfo WHERE bdid = ?");

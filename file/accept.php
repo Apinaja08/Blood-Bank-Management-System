@@ -1,7 +1,9 @@
 <?php
 require "auth.php";
+require "csrf.php";
 include "connection.php";
     $hid = require_role('hid');
+    csrf_verify('bloodrequest.php');
     $reqid = require_id('reqid', 'bloodrequest.php');
 	$status = "Accepted";
 	// Only the hospital the request was sent to may change its status.

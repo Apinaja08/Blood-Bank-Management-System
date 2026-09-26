@@ -14,9 +14,9 @@ function require_role($role) {
     return (int) $_SESSION[$role];
 }
 
-// Reads a positive integer id from the query string, or stops the request.
+// Reads a positive integer id from the POSTed form, or stops the request.
 function require_id($name, $redirect) {
-    $id = filter_input(INPUT_GET, $name, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
+    $id = filter_input(INPUT_POST, $name, FILTER_VALIDATE_INT, array('options' => array('min_range' => 1)));
     if (!$id) {
         header("location:../".$redirect."?error=Invalid request.");
         exit;
