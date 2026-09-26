@@ -1,4 +1,5 @@
 <?php
+mysqli_report(MYSQLI_REPORT_OFF);
 $servername = "db"; // Use the Docker service name for MySQL
 $username = "root";
 $password = "root"; // Set to match your Docker Compose MYSQL_ROOT_PASSWORD
