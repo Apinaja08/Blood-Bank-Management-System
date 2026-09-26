@@ -5,13 +5,14 @@ session_start();
     $remail=$_POST['remail'];
     $rpassword=$_POST['rpassword'];
     $sql="select * from receivers where remail='$remail' and rpassword='$rpassword'";
-    $result=mysqli_query($conn,$sql) or die(mysqli_error($conn));
+    try { $result=mysqli_query($conn,$sql); } catch (mysqli_sql_exception $e) { error_log("Database Error: " . $e->getMessage()); die(header("location:../login.php?error=An internal server error occurred. Please try again.")); }
     $rows_fetched=mysqli_num_rows($result);
     if($rows_fetched==0){
         $error= "Wrong email or password. Please try again.";
         header( "location:../login.php?error=".$error);
     }else{
         $row=mysqli_fetch_array($result);
+        session_regenerate_id(true); // V15 Fix: Prevent session fixation
         $_SESSION['remail']=$row['remail'];
         $_SESSION['rname']=$row['rname'];
         $_SESSION['rid']=$row['id'];
@@ -20,3 +21,6 @@ session_start();
     } 
   }
 ?>
+
+
+
