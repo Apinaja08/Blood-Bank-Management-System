@@ -1,0 +1,11 @@
+php_flag session.cookie_httponly on
+php_value session.cookie_samesite Strict
+
+# Hide PHP version
+php_flag expose_php off
+ServerSignature Off
+
+<IfModule mod_headers.c>
+    # Prevent MIME sniffing
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
