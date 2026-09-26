@@ -1,17 +1,19 @@
 <?php
 require 'file/connection.php';
 session_start();
+require 'file/csrf.php';
 if(!isset($_SESSION['hid']))
 {
   header('location:login.php');
+  exit();
 }
 else {
-	if(isset($_SESSION['hid'])){
-		$id=$_SESSION['hid'];
-		$sql = "SELECT * FROM hospitals WHERE id='$id'";
-		$result = mysqli_query($conn, $sql);
-		$row = mysqli_fetch_array($result);
-	}
+    $id = (int)$_SESSION['hid'];
+    $stmt = $conn->prepare("SELECT * FROM hospitals WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
 }
 ?>
 
@@ -48,6 +50,7 @@ else {
 					</div>
 					<div class="card-body">
 					   <form action="file/updateprofile.php" method="post">
+					   	<?php echo csrf_field(); ?>
 					   	<label class="text-muted font-weight-bold" class="text-muted font-weight-bold">Hospital Name</label>
 						<input type="text" name="hname" value="<?php echo $row['hname']; ?>" class="form-control mb-3">
 						<label class="text-muted font-weight-bold">Hospital Email</label>

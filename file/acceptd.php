@@ -1,14 +1,20 @@
 <?php
+require "auth.php";
+require "csrf.php";
 include "connection.php";
-    $donoid=$_GET['donoid'];
+    $rid = require_role('rid');
+    csrf_verify('blooddonate.php');
+    $donoid = require_id('donoid', 'blooddonate.php');
 	$status = 'Accepted';
-	$sql = "UPDATE blooddonate SET status = '$status' WHERE donoid = '$donoid'";
-    if (mysqli_query($conn, $sql)) {
+	// Only the receiver the donation request was sent to may change its status.
+	$stmt = $conn->prepare("UPDATE blooddonate SET status = ? WHERE donoid = ? AND rid = ?");
+	$stmt->bind_param("sii", $status, $donoid, $rid);
+    if ($stmt->execute() && $stmt->affected_rows > 0) {
 	$msg="You have accepted the request.";
-	header("location:../blooddonate.php?msg=".$msg );
+	header("location:../blooddonate.php?msg=".urlencode($msg));
     } else {
-    $error= "Error changing status: ";
-    header("location:../blooddonate.php?error=".$error );
+    $error= "Request not found or you are not allowed to change it.";
+    header("location:../blooddonate.php?error=".urlencode($error));
     }
     mysqli_close($conn);
 ?>

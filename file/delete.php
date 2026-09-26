@@ -1,13 +1,19 @@
 <?php
+require "auth.php";
+require "csrf.php";
 include "connection.php";
-    $bid=$_GET['bid'];
-	$sql = "delete from bloodinfo where bid='$bid'";
-	if (mysqli_query($conn, $sql)) {
+    $hid = require_role('hid');
+    csrf_verify('bloodinfo.php');
+    $bid = require_id('bid', 'bloodinfo.php');
+	// A hospital may only delete its own blood samples.
+	$stmt = $conn->prepare("DELETE FROM bloodinfo WHERE bid = ? AND hid = ?");
+	$stmt->bind_param("ii", $bid, $hid);
+	if ($stmt->execute() && $stmt->affected_rows > 0) {
 	$msg="You have deleted one blood sample.";
-	header("location:../bloodinfo.php?msg=".$msg );
+	header("location:../bloodinfo.php?msg=".urlencode($msg));
     } else {
-    $error="Error deleting record: ";
-    header("location:../bloodinfo.php?error=".$error );
+    $error="Sample not found or you are not allowed to delete it.";
+    header("location:../bloodinfo.php?error=".urlencode($error));
     }
     mysqli_close($conn);
 ?>

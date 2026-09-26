@@ -1,14 +1,20 @@
 <?php
+require "auth.php";
+require "csrf.php";
 include "connection.php";
-    $reqid=$_GET['reqid'];
+    $hid = require_role('hid');
+    csrf_verify('bloodrequest.php');
+    $reqid = require_id('reqid', 'bloodrequest.php');
 	$status = "Accepted";
-	$sql = "update bloodrequest SET status = '$status' WHERE reqid = '$reqid'";
-    if (mysqli_query($conn, $sql)) {
+	// Only the hospital the request was sent to may change its status.
+	$stmt = $conn->prepare("UPDATE bloodrequest SET status = ? WHERE reqid = ? AND hid = ?");
+	$stmt->bind_param("sii", $status, $reqid, $hid);
+    if ($stmt->execute() && $stmt->affected_rows > 0) {
 	$msg="You have accepted the request.";
-	header("location:../bloodrequest.php?msg=".$msg );
+	header("location:../bloodrequest.php?msg=".urlencode($msg));
     } else {
-    $error= "Error changing status: ";
-    header("location:../bloodrequest.php?error=".$error );
+    $error= "Request not found or you are not allowed to change it.";
+    header("location:../bloodrequest.php?error=".urlencode($error));
     }
     mysqli_close($conn);
 ?>

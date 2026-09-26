@@ -1,26 +1,41 @@
 <?php
 require 'connection.php';
-if(isset($_POST['hregister'])){
-	$hname=$_POST['hname'];
-	$hemail=$_POST['hemail'];
-	$hpassword=$_POST['hpassword'];
-	$hphone=$_POST['hphone'];
-	$hcity=$_POST['hcity'];
-	$check_email = mysqli_query($conn, "SELECT hemail FROM hospitals where hemail = '$hemail' ");
-	if(mysqli_num_rows($check_email) > 0){
-    $error= 'Email Already exists. Please try another Email.';
-    header( "location:../register.php?error=".$error );
-}else{
-	$sql = "INSERT INTO hospitals (hname, hemail, hpassword, hphone, hcity)
-	VALUES ('$hname','$hemail', '$hpassword', '$hphone', '$hcity')";
-	if ($conn->query($sql) === TRUE) {
-		$msg = 'You have successfully registered. Please, login to continue.';
-		header( "location:../login.php?msg=".$msg );
-	} else {
-		$error = "Error: " . $sql . "<br>" . $conn->error;
-        header( "location:../register.php?error=".$error );
-	}
-	$conn->close();
-}
+
+if (isset($_POST['hregister'])) {
+    $hname     = trim($_POST['hname'] ?? '');
+    $hemail    = trim($_POST['hemail'] ?? '');
+    $hpassword = $_POST['hpassword'] ?? '';
+    $hphone    = trim($_POST['hphone'] ?? '');
+    $hcity     = trim($_POST['hcity'] ?? '');
+
+    // Check if email already exists using prepared statement
+    $stmt_check = $conn->prepare("SELECT id FROM hospitals WHERE hemail = ?");
+    $stmt_check->bind_param("s", $hemail);
+    $stmt_check->execute();
+    $stmt_check->store_result();
+
+    if ($stmt_check->num_rows > 0) {
+        $stmt_check->close();
+        $error = "Email already exists. Please try another email.";
+        header("Location: ../register.php?error=" . urlencode($error));
+        exit();
+    }
+    $stmt_check->close();
+
+    // Insert new hospital record securely
+    $stmt_insert = $conn->prepare("INSERT INTO hospitals (hname, hemail, hpassword, hphone, hcity) VALUES (?, ?, ?, ?, ?)");
+    $stmt_insert->bind_param("sssss", $hname, $hemail, $hpassword, $hphone, $hcity);
+
+    if ($stmt_insert->execute()) {
+        $msg = "You have successfully registered. Please login to continue.";
+        header("Location: ../login.php?msg=" . urlencode($msg));
+    } else {
+        $error = "Registration failed. Please try again.";
+        header("Location: ../register.php?error=" . urlencode($error));
+    }
+
+    $stmt_insert->close();
+    $conn->close();
+    exit();
 }
 ?>
