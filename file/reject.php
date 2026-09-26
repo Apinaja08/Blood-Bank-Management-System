@@ -1,14 +1,26 @@
 <?php
+session_start();
 include "connection.php";
-    $reqid=$_GET['reqid'];
-	$status = "Rejected";
-	$sql = "update bloodrequest SET status = '$status' WHERE reqid = '$reqid'";
-    if (mysqli_query($conn, $sql)) {
-	$msg="You have Rejected the request.";
-	header("location:../bloodrequest.php?msg=".$msg );
+
+$reqid = filter_var($_GET['reqid'] ?? null, FILTER_VALIDATE_INT);
+$status = "Rejected";
+
+if ($reqid) {
+    $stmt = $conn->prepare("UPDATE bloodrequest SET status = ? WHERE reqid = ?");
+    $stmt->bind_param("si", $status, $reqid);
+
+    if ($stmt->execute()) {
+        $msg = "You have rejected the request.";
+        header("Location: ../bloodrequest.php?msg=" . urlencode($msg));
     } else {
-    $error= "Error changing status: " . mysqli_error($conn);
-    header("location:../bloodrequest.php?error=".$error );
+        $error = "Error updating request status.";
+        header("Location: ../bloodrequest.php?error=" . urlencode($error));
     }
-    mysqli_close($conn);
+    $stmt->close();
+} else {
+    header("Location: ../bloodrequest.php?error=" . urlencode("Invalid request ID."));
+}
+
+$conn->close();
+exit();
 ?>
