@@ -1,27 +1,25 @@
 <?php 
 session_start();
 require 'connection.php';
-require 'csrf.php';
-
-if (isset($_SESSION['rid']) && isset($_POST['update'])) {
-    csrf_verify('rprofile.php');
-    $id        = (int)$_SESSION['rid'];
-    $rname     = trim($_POST['rname'] ?? '');
-    $remail    = trim($_POST['remail'] ?? '');
-    $rphone    = trim($_POST['rphone'] ?? '');
-    $bg        = trim($_POST['bg'] ?? '');
-    $rcity     = trim($_POST['rcity'] ?? '');
-    $rpassword = $_POST['rpassword'] ?? '';
-
-    $stmt = $conn->prepare("UPDATE receivers SET rname = ?, remail = ?, rpassword = ?, rphone = ?, rbg = ?, rcity = ? WHERE id = ?");
-    $stmt->bind_param("ssssssi", $rname, $remail, $rpassword, $rphone, $bg, $rcity, $id);
-
-    if ($stmt->execute()) {
+if (isset($_SESSION['rid'])) {
+if(isset($_POST['update'])){
+    $id=$_SESSION['rid'];
+    $rname = $_POST['rname'];
+    $remail = $_POST['remail'];
+    $rphone = $_POST['rphone'];
+    $bg = $_POST['bg'];
+    $rcity = $_POST['rcity'];
+    $rpassword = $_POST['rpassword'];
+    if (!empty($rpassword) && !password_get_info($rpassword)['algo']) {
+        $rpassword = password_hash($rpassword, PASSWORD_BCRYPT);
+    }
+    $update = "UPDATE receivers SET rname='$rname', remail='$remail', rpassword='$rpassword', rphone='$rphone', rbg='$bg',rcity='$rcity' WHERE id='$id'";
+    if ($conn->query($update) === TRUE) {
         $msg = "Your profile is updated successfully.";
         header("Location: ../rprofile.php?msg=" . urlencode($msg));
     } else {
-        $error = "Profile update failed.";
-        header("Location: ../rprofile.php?error=" . urlencode($error));
+        $error = "Error: " . $conn->error;
+        header( "location:../rprofile.php?error=".$error );
     }
     $stmt->close();
     $conn->close();
@@ -36,15 +34,24 @@ if (isset($_SESSION['rid']) && isset($_POST['update'])) {
     $hcity     = trim($_POST['hcity'] ?? '');
     $hpassword = $_POST['hpassword'] ?? '';
 
-    $stmt = $conn->prepare("UPDATE hospitals SET hname = ?, hemail = ?, hpassword = ?, hphone = ?, hcity = ? WHERE id = ?");
-    $stmt->bind_param("sssssi", $hname, $hemail, $hpassword, $hphone, $hcity, $id);
-
-    if ($stmt->execute()) {
-        $msg = "Your profile is updated successfully.";
-        header("Location: ../hprofile.php?msg=" . urlencode($msg));
+}elseif (isset($_SESSION['hid'])) {
+    if(isset($_POST['update'])){
+        $id=$_SESSION['hid'];
+    $hname = $_POST['hname'];
+    $hemail = $_POST['hemail'];
+    $hphone = $_POST['hphone'];
+    $hcity = $_POST['hcity'];
+    $hpassword = $_POST['hpassword'];
+    if (!empty($hpassword) && !password_get_info($hpassword)['algo']) {
+        $hpassword = password_hash($hpassword, PASSWORD_BCRYPT);
+    }
+    $update = "UPDATE hospitals SET hname='$hname', hemail='$hemail', hpassword='$hpassword', hphone='$hphone', hcity='$hcity' WHERE id='$id'";
+    if ($conn->query($update) === TRUE) {
+        $msg= "Your profile is updated successfully.";
+        header( "location:../hprofile.php?msg=".$msg);
     } else {
-        $error = "Profile update failed.";
-        header("Location: ../hprofile.php?error=" . urlencode($error));
+        $error= "Error: " . $conn->error;
+        header( "location:../hprofile.php?error=".$error);
     }
     $stmt->close();
     $conn->close();

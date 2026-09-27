@@ -1,3 +1,4 @@
+
 # Operating System Files
 # macOS
 .DS_Store
@@ -26,7 +27,7 @@ $RECYCLE.BIN/
 .env.local
 .env.*.local
 *.env
-!*.env.example
+
 *.local.php
 config.local.php
 
