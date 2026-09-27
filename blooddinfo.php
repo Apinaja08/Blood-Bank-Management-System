@@ -1,6 +1,7 @@
 <?php 
   require 'file/connection.php';
   session_start();
+  require 'file/csrf.php';
   if(!isset($_SESSION['rid']))
   {
   header('location:login.php');
@@ -39,6 +40,7 @@
             <div class="card-header title">Add blood group available in your known community</div>
         <div class="card-body">
         <form action="file/infoAddd.php" method="post">
+          <?php echo csrf_field(); ?>
           <a data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" title="click to see">Term & conditions. </a><br>
           <div class="collapse" id="collapseExample">
           If you or your Friends/Family have the mentioned(below) blood then only add Blood group(No spam).So,that the hospital can contact you with your given details if they are in need of you or your friends/family blood.You should have a blood sample tested by your doctor’s, nurse, or trained phlebotomist , at a pathology collection centre, clinic or hospital. Blood samples are most commonly taken from the inside of the elbow where the veins are usually closer to the surface.Make sure you have been eating healthy diet(No Smoking/Drinking)atleast for a week before you have to decided to donate Blood.By clicking tick mark you are promising that you are promising that you have read and accepted the above instructions and also willing to donate blood volunteerly.<br><br>
@@ -63,9 +65,11 @@
      </div>
 
 <?php   if(isset($_SESSION['rid'])){
-    $rid=$_SESSION['rid'];
-    $sql = "SELECT * from blooddinfo where rid='$rid'";
-    $result = mysqli_query($conn, $sql);
+    $rid = (int)$_SESSION['rid'];
+    $stmt = $conn->prepare("SELECT * FROM blooddinfo WHERE rid = ?");
+    $stmt->bind_param("i", $rid);
+    $stmt->execute();
+    $result = $stmt->get_result();
   }
   ?>
     <div class="col-lg-4 col-md-5 col-sm-6 col-xs-7 mb-5">
@@ -91,7 +95,13 @@
               <td><?php echo ++$counter; ?></td>
 
               <td><?php echo $row['bg'];?></td>
-              <td><a href="file/deleted.php?bdid=<?php echo $row['bdid'];?>" class="btn btn-danger">Delete</a></td>
+              <td>
+                <form action="file/deleted.php" method="post" style="display:inline">
+                  <?php echo csrf_field(); ?>
+                  <input type="hidden" name="bdid" value="<?php echo $row['bdid'];?>">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </td>
             </tr>
             <?php } ?>
           </table>

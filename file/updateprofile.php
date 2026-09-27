@@ -16,14 +16,23 @@ if(isset($_POST['update'])){
     $update = "UPDATE receivers SET rname='$rname', remail='$remail', rpassword='$rpassword', rphone='$rphone', rbg='$bg',rcity='$rcity' WHERE id='$id'";
     if ($conn->query($update) === TRUE) {
         $msg = "Your profile is updated successfully.";
-        header( "location:../rprofile.php?msg=".$msg);
+        header("Location: ../rprofile.php?msg=" . urlencode($msg));
     } else {
         $error = "Error: " . $conn->error;
         header( "location:../rprofile.php?error=".$error );
     }
+    $stmt->close();
     $conn->close();
-}
+    exit();
 
+} elseif (isset($_SESSION['hid']) && isset($_POST['update'])) {
+    csrf_verify('hprofile.php');
+    $id        = (int)$_SESSION['hid'];
+    $hname     = trim($_POST['hname'] ?? '');
+    $hemail    = trim($_POST['hemail'] ?? '');
+    $hphone    = trim($_POST['hphone'] ?? '');
+    $hcity     = trim($_POST['hcity'] ?? '');
+    $hpassword = $_POST['hpassword'] ?? '';
 
 }elseif (isset($_SESSION['hid'])) {
     if(isset($_POST['update'])){
@@ -44,9 +53,12 @@ if(isset($_POST['update'])){
         $error= "Error: " . $conn->error;
         header( "location:../hprofile.php?error=".$error);
     }
+    $stmt->close();
     $conn->close();
-}
-}else{
-    header("location:../login.php");
+    exit();
+
+} else {
+    header("Location: ../login.php");
+    exit();
 }
 ?>

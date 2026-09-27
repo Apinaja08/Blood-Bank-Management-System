@@ -1,13 +1,18 @@
 <?php 
 session_start();
 require 'file/connection.php';
-if(isset($_GET['search'])){
-    $searchKey = $_GET['search'];
-    $sql = "SELECT blooddinfo.*, receivers.* from blooddinfo, receivers where blooddinfo.rid=receivers.id && bg='$searchKey'";
-}else{
-    $sql = "SELECT blooddinfo.*, receivers.* from blooddinfo, receivers where blooddinfo.rid=receivers.id";
+require 'file/csrf.php';
+$searchKey = trim($_GET['search'] ?? '');
+$allowed_bg = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
+if (!empty($searchKey) && in_array($searchKey, $allowed_bg, true)) {
+    $stmt = $conn->prepare("SELECT blooddinfo.*, receivers.* FROM blooddinfo JOIN receivers ON blooddinfo.rid = receivers.id WHERE blooddinfo.bg = ?");
+    $stmt->bind_param("s", $searchKey);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $result = $conn->query("SELECT blooddinfo.*, receivers.* FROM blooddinfo JOIN receivers ON blooddinfo.rid = receivers.id");
 }
-$result = mysqli_query($conn, $sql);
 ?>
 
 <!DOCTYPE html>
@@ -89,6 +94,7 @@ $result = mysqli_query($conn, $sql);
                 <?php $rid= $row['rid'];?>
                 <?php $bg= $row['bg'];?>
                 <form action="file/requestd.php" method="post">
+                    <?php echo csrf_field(); ?>
                     <input type="hidden" name="bdid" value="<?php echo $bdid; ?>">
                     <input type="hidden" name="rid" value="<?php echo $rid; ?>">
                     <input type="hidden" name="bg" value="<?php echo $bg; ?>">

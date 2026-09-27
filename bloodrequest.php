@@ -1,14 +1,18 @@
 <?php 
-require 'file/connection.php'; 
+require 'file/connection.php';
 session_start();
+require 'file/csrf.php';
   if(!isset($_SESSION['hid']))
   {
-  header('location:login.php');
+    header('location:login.php');
+    exit();
   }
   else {
-    $hid = $_SESSION['hid'];
-    $sql = "select bloodrequest.*, receivers.* from bloodrequest, receivers where hid='$hid' && bloodrequest.rid=receivers.id";
-    $result = mysqli_query($conn, $sql);
+    $hid = (int)$_SESSION['hid'];
+    $stmt = $conn->prepare("SELECT bloodrequest.*, receivers.* FROM bloodrequest JOIN receivers ON bloodrequest.rid = receivers.id WHERE bloodrequest.hid = ?");
+    $stmt->bind_param("i", $hid);
+    $stmt->execute();
+    $result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -70,12 +74,20 @@ session_start();
 			<td><?php echo 'You have '.$row['status'];?></td>
 			<td><?php if($row['status'] == 'Accepted'){ ?> <a href="" class="btn btn-success disabled">Accepted</a> <?php }
 			else{ ?>
-				<a href="file/accept.php?reqid=<?php echo $row['reqid'];?>" class="btn btn-success">Accept</a>
+				<form action="file/accept.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="reqid" value="<?php echo $row['reqid'];?>">
+					<button type="submit" class="btn btn-success">Accept</button>
+				</form>
 			<?php } ?>
 			</td>
 			<td><?php if($row['status'] == 'Rejected'){ ?> <a href="" class="btn btn-danger disabled">Rejected</a> <?php }
 			else{ ?>
-				<a href="file/reject.php?reqid=<?php echo $row['reqid'];?>" class="btn btn-danger">Reject</a>
+				<form action="file/reject.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="reqid" value="<?php echo $row['reqid'];?>">
+					<button type="submit" class="btn btn-danger">Reject</button>
+				</form>
 			<?php } ?>
 			</td>
 			

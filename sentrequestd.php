@@ -1,14 +1,18 @@
 <?php 
-require 'file/connection.php'; 
+require 'file/connection.php';
 session_start();
+require 'file/csrf.php';
   if(!isset($_SESSION['hid']))
   {
-  header('location:login.php');
+    header('location:login.php');
+    exit();
   }
   else {
-    $hid = $_SESSION['hid'];
-    $sql = "SELECT blooddonate.*, receivers.* from blooddonate, receivers where hid='$hid' && blooddonate.rid=receivers.id";
-    $result = mysqli_query($conn, $sql);
+    $hid = (int)$_SESSION['hid'];
+    $stmt = $conn->prepare("SELECT blooddonate.*, receivers.* FROM blooddonate JOIN receivers ON blooddonate.rid = receivers.id WHERE blooddonate.hid = ?");
+    $stmt->bind_param("i", $hid);
+    $stmt->execute();
+    $result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -71,7 +75,11 @@ session_start();
 			<td><?php if($row['status'] == 'Accepted'){ ?>
 			<?php }
 			else{ ?>
-				<a href="file/canceld.php?donoid=<?php echo $row['donoid'];?>" class="btn btn-danger">Cancel</a>
+				<form action="file/canceld.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="donoid" value="<?php echo $row['donoid'];?>">
+					<button type="submit" class="btn btn-danger">Cancel</button>
+				</form>
 			<?php } ?>
 			</td>
 		</tr>

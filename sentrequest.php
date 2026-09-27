@@ -1,14 +1,18 @@
 <?php 
-require 'file/connection.php'; 
+require 'file/connection.php';
 session_start();
+require 'file/csrf.php';
   if(!isset($_SESSION['rid']))
   {
-  header('location:login.php');
+    header('location:login.php');
+    exit();
   }
   else {
-    $rid = $_SESSION['rid'];
-    $sql = "select bloodrequest.*, hospitals.* from bloodrequest, hospitals where rid='$rid' && bloodrequest.hid=hospitals.id";
-    $result = mysqli_query($conn, $sql);
+    $rid = (int)$_SESSION['rid'];
+    $stmt = $conn->prepare("SELECT bloodrequest.*, hospitals.* FROM bloodrequest JOIN hospitals ON bloodrequest.hid = hospitals.id WHERE bloodrequest.rid = ?");
+    $stmt->bind_param("i", $rid);
+    $stmt->execute();
+    $result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -71,7 +75,11 @@ session_start();
 			<td><?php if($row['status'] == 'Accepted'){ ?>
 			<?php }
 			else{ ?>
-				<a href="file/cancel.php?reqid=<?php echo $row['reqid'];?>" class="btn btn-danger">Cancel</a>
+				<form action="file/cancel.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="reqid" value="<?php echo $row['reqid'];?>">
+					<button type="submit" class="btn btn-danger">Cancel</button>
+				</form>
 			<?php } ?>
 			</td>
 		</tr>

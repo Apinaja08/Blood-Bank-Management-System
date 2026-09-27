@@ -1,29 +1,52 @@
 <?php
-require 'connection.php';
 session_start();
-if(!isset($_SESSION['hid']))
-{
-	header('location:login.php');
+require 'csrf.php';
+require 'connection.php';
+
+if (!isset($_SESSION['hid'])) {
+    header('Location: ../login.php');
+    exit();
 }
-else {
-	if(isset($_POST['add'])){
-		$hid=$_SESSION['hid'];
-		$bg=$_POST['bg'];
-		$check_data = mysqli_query($conn, "SELECT hid FROM bloodinfo where hid='$hid' && bg='$bg'");
-		if(mysqli_num_rows($check_data) > 0){
-			$error= 'You have already added this blood sample.';
-			header( "location:../bloodinfo.php?error=".$error );
-}else{
-		$sql = "INSERT INTO bloodinfo (bg, hid) VALUES ('$bg', '$hid')";
-		if ($conn->query($sql) === TRUE) {
-			$msg = "You have added record successfully.";
-			header( "location:../bloodinfo.php?msg=".$msg );
-		} else {
-			$error = "Error: " . $sql . "<br>" . $conn->error;
-            header( "location:../bloodinfo.php?error=".$error );
-		}
-		$conn->close();
-	}
-}
+
+if (isset($_POST['add'])) {
+    csrf_verify('bloodinfo.php');
+    $hid = (int)$_SESSION['hid'];
+    $bg  = trim($_POST['bg'] ?? '');
+
+    $allowed_bg = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+    if (!in_array($bg, $allowed_bg, true)) {
+        header("Location: ../bloodinfo.php?error=" . urlencode("Invalid blood group selected."));
+        exit();
+    }
+
+    // Check duplicate
+    $stmt_check = $conn->prepare("SELECT hid FROM bloodinfo WHERE hid = ? AND bg = ?");
+    $stmt_check->bind_param("is", $hid, $bg);
+    $stmt_check->execute();
+    $stmt_check->store_result();
+
+    if ($stmt_check->num_rows > 0) {
+        $stmt_check->close();
+        $error = "You have already added this blood sample.";
+        header("Location: ../bloodinfo.php?error=" . urlencode($error));
+        exit();
+    }
+    $stmt_check->close();
+
+    // Insert
+    $stmt_insert = $conn->prepare("INSERT INTO bloodinfo (bg, hid) VALUES (?, ?)");
+    $stmt_insert->bind_param("si", $bg, $hid);
+
+    if ($stmt_insert->execute()) {
+        $msg = "Blood sample added successfully.";
+        header("Location: ../bloodinfo.php?msg=" . urlencode($msg));
+    } else {
+        $error = "Failed to add sample.";
+        header("Location: ../bloodinfo.php?error=" . urlencode($error));
+    }
+
+    $stmt_insert->close();
+    $conn->close();
+    exit();
 }
 ?>

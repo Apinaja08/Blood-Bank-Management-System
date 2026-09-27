@@ -1,14 +1,18 @@
 <?php 
-require 'file/connection.php'; 
+require 'file/connection.php';
 session_start();
+require 'file/csrf.php';
   if(!isset($_SESSION['rid']))
   {
-  header('location:login.php');
+    header('location:login.php');
+    exit();
   }
   else {
-    $rid = $_SESSION['rid'];
-    $sql = "SELECT blooddonate.*, hospitals.* from blooddonate, hospitals where rid='$rid' && blooddonate.hid=hospitals.id";
-    $result = mysqli_query($conn, $sql);
+    $rid = (int)$_SESSION['rid'];
+    $stmt = $conn->prepare("SELECT blooddonate.*, hospitals.* FROM blooddonate JOIN hospitals ON blooddonate.hid = hospitals.id WHERE blooddonate.rid = ?");
+    $stmt->bind_param("i", $rid);
+    $stmt->execute();
+    $result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -79,12 +83,20 @@ text-align: center;
 <td><?php echo 'You have '.$row['status'];?></td>
 			<td><?php if($row['status'] == 'Accepted'){ ?> <a href="" class="btn btn-success disabled">Accepted</a> <?php }
 			else{ ?>
-				<a href="file/acceptd.php?donoid=<?php echo $row['donoid'];?>" class="btn btn-success">Accept</a>
+				<form action="file/acceptd.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="donoid" value="<?php echo $row['donoid'];?>">
+					<button type="submit" class="btn btn-success">Accept</button>
+				</form>
 			<?php } ?>
 			</td>
 			<td><?php if($row['status'] == 'Rejected'){ ?> <a href="" class="btn btn-danger disabled">Rejected</a> <?php }
 			else{ ?>
-				<a href="file/rejectd.php?donoid=<?php echo $row['donoid'];?>" class="btn btn-danger">Reject</a>
+				<form action="file/rejectd.php" method="post" style="display:inline">
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="donoid" value="<?php echo $row['donoid'];?>">
+					<button type="submit" class="btn btn-danger">Reject</button>
+				</form>
 			<?php } ?>
 			</td>
 			
