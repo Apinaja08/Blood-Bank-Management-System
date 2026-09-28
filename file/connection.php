@@ -28,8 +28,8 @@ if (!function_exists('loadEnv')) {
 // Load .env from project root
 loadEnv(__DIR__ . '/../.env');
 
-$servername = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? 'db');
-$username   = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'bloodbank_user');
+$servername = getenv('DB_HOST') ?: ($_ENV['DB_HOST'] ?? 'db');  
+$username   = getenv('DB_USER') ?: ($_ENV['DB_USER'] ?? 'bloodbank_user');  
 $password   = getenv('DB_PASS') ?: ($_ENV['DB_PASS'] ?? 'SecurePassword123!');
 $dbname     = getenv('DB_NAME') ?: ($_ENV['DB_NAME'] ?? 'bloodbank');
 

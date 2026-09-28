@@ -12,7 +12,7 @@ session_start();
         header( "location:../login.php?error=".$error);
     }else{
         $row=mysqli_fetch_array($result);
-        if(password_verify($rpassword, $row['rpassword'])){
+        if(password_verify($rpassword, $row['rpassword'])){   
             $_SESSION['remail']=$row['remail'];
             $_SESSION['rname']=$row['rname'];
             $_SESSION['rid']=$row['id'];
